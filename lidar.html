@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LiDAR terrain scanner: a published pan-tilt scanner by Aadi Verma</title>
+<meta name="description" content="A two-servo LiDAR scanner that radios points to a laptop and draws terrain in 3D, opening on a live scan demo, then the parts, real scans and the paper.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LiDAR terrain scanner: a published pan-tilt scanner by Aadi Verma">
+<meta property="og:description" content="A two-servo LiDAR scanner that radios points to a laptop and draws terrain in 3D, opening on a live scan demo, then the parts, real scans and the paper.">
+<meta property="og:image" content="https://aadiverma-ee.github.io/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#15171a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/urbanist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="pcb.css">
+</head>
+<body style="--w: #f4f4f1">
+<div class="bench"><div class="board">
+  <span class="hole a"></span><span class="hole b"></span><span class="hole c"></span><span class="hole d"></span>
+  <header class="hdr page-hdr">
+    <a class="home" href="index.html">Aadi Verma</a>
+    <nav class="pins" aria-label="Projects"><a href="rover.html" style="--c: #ef4444"><span class="pill"><span class="bands"><b style="--b: #d93a32"></b><b style="--b: #d93a32"></b></span>Rover<b class="tol"></b></span></a><a href="research.html" style="--c: #4f9dff"><span class="pill"><span class="bands"><b style="--b: #3d7fe0"></b><b style="--b: #8a8f95"></b></span>Research<b class="tol"></b></span></a><a href="arm.html" style="--c: #ffd23f"><span class="pill"><span class="bands"><b style="--b: #f2c400"></b><b style="--b: #7a4fb5"></b></span>Arm<b class="tol"></b></span></a><a href="lidar.html" style="--c: #f4f4f1" aria-current="page"><span class="pill"><span class="bands"><b style="--b: #f6f6f1"></b><b style="--b: #6b3f1d"></b></span>Scanner<b class="tol"></b></span></a></nav>
+    <a class="sw" href="mailto:verma203@purdue.edu"><b></b>Email Aadi</a>
+  </header>
+  <main>
+    <section class="hero" id="top" aria-labelledby="hero-h">
+      <div class="hero__head">
+        <p class="silk">P4 · Published in IJSHRE</p>
+        <h1 id="hero-h">LiDAR scanner that maps terrain in 3D</h1>
+        <p class="lead">A TF Mini LiDAR on two servos sweeps a scene and radios each point to a laptop, which draws the terrain live. Built to scan underwater ground from above. Watch it scan a room below.</p>
+      </div>
+      <div class="disp" style="--dh-m: 70svh">
+        <div class="disp__screen"><p>Loading the 3D model</p><iframe src="viewers/lidar/index.html" title="Scan demo: the scanner sweeping a room on the left, the point cloud building on the right" allow="fullscreen"></iframe></div>
+        <div class="disp__foot silk"><span>LCD1 · Scan demo</span><span>Simulated room · scanner model rebuilt from the original renders and the paper</span></div>
+      </div>
+      <p class="lead lead--below" aria-hidden="true">A TF Mini LiDAR on two servos sweeps a scene and radios each point to a laptop, which draws the terrain live. Built to scan underwater ground from above. Watch it scan a room below.</p>
+    </section>
+    <div class="run">
+      <nav class="rail" aria-label="On this page"><p class="silk">J2 · Jump to</p><ol><li><a href="#top"><i></i>3D model</a></li><li><a href="#used"><i></i>Electronics</a></li><li><a href="#scans"><i></i>Real scans</a></li><li><a href="#fixes"><i></i>Problems</a></li><li><a href="#contact"><i></i>Contact</a></li></ol></nav>
+      <p class="run__lead silk">Follow the wire for the build</p>
+    <section class="part" id="used" aria-labelledby="used-h">
+      <div class="part__head"><p class="silk">01 · The electronics</p><h2 id="used-h">Scanner electronics: two Nanos and a radio link</h2><p>The scan above is a simulation of how it works. This is how the real prototype is wired, and the photos are the boards I built.</p></div>
+      <div class="diagram-wrap"><svg class="diagram" viewBox="0 0 980 510" role="img" aria-label="Wiring diagram of the scanner. The LiDAR's serial lines go to an Arduino Nano, with a resistor divider on the line into the LiDAR. Two servo signal lines leave the Nano. A radio module is on pins D8 to D13 and 3.3 volts. A radio link carries the points to a second radio and Nano on the ground station, which feeds a laptop over USB.">
+  <g fill="none" stroke-linecap="round">
+    <path d="M220 120H380" stroke="#f4f4f1" stroke-width="3"/>
+    <path d="M380 160H326M284 160H220M262 160V176M262 204V216M252 216H272M256 221H268" stroke="#ffd23f" stroke-width="3"/>
+    <path d="M220 243H380M220 300H380" stroke="#f4f4f1" stroke-width="3"/>
+    <path d="M620 120H760" stroke="#4f9dff" stroke-width="3"/><path d="M620 144H760" stroke="#4f9dff" stroke-width="3"/><path d="M620 168H760" stroke="#4f9dff" stroke-width="3"/><path d="M620 192H760" stroke="#4f9dff" stroke-width="3"/><path d="M620 216H760" stroke="#4f9dff" stroke-width="3"/><path d="M620 240H760" stroke="#4f9dff" stroke-width="3"/>
+    <path d="M620 276H760" stroke="#ef4444" stroke-width="3"/>
+    <path d="M860 320V400" stroke="#eef3ee" stroke-width="3" stroke-dasharray="2 8"/>
+    <path d="M640 445H760" stroke="#4f9dff" stroke-width="6"/><path d="M300 445H420" stroke="#aeb3ba" stroke-width="5"/>
+  </g>
+  <rect class="el" x="284" y="152" width="42" height="16" rx="2" fill="#0e4634" stroke="#ffd23f" stroke-width="2"/>
+  <rect class="el" x="254" y="176" width="16" height="28" rx="2" fill="#0e4634" stroke="#ffd23f" stroke-width="2"/>
+  <rect class="bx" x="380" y="40" width="240" height="270" rx="8"/><text class="t" x="396" y="70">Arduino Nano</text><text class="s" x="396" y="90">on the scanner</text>
+  <rect class="bx" x="20" y="70" width="200" height="110" rx="8"/><text class="t" x="36" y="100">TF Mini LiDAR</text><text class="s" x="36" y="120">3.3 V serial</text>
+  <rect class="bx" x="20" y="215" width="200" height="56" rx="8"/><text class="t" x="36" y="245">Pan servo</text><text class="s" x="36" y="265">9 g</text>
+  <rect class="bx" x="20" y="280" width="200" height="56" rx="8"/><text class="t" x="36" y="310">Tilt servo</text><text class="s" x="36" y="330">9 g</text>
+  <rect class="bx" x="760" y="60" width="200" height="260" rx="8"/><text class="t" x="776" y="90">nRF24L01 radio</text><text class="s" x="776" y="110">on SPI</text>
+  <rect class="bx" x="760" y="400" width="200" height="90" rx="8"/><text class="t" x="776" y="430">nRF24L01 radio</text><text class="s" x="776" y="450">wired to the same pins</text>
+  <rect class="bx" x="420" y="400" width="220" height="90" rx="8"/><text class="t" x="436" y="430">Arduino Nano</text><text class="s" x="436" y="450">ground station, on Veroboard</text>
+  <rect class="bx" x="60" y="400" width="240" height="90" rx="8"/><text class="t" x="76" y="430">Laptop</text><text class="s" x="76" y="450">Processing plots each point</text>
+  <g class="pin">
+    <text x="392" y="124">RX</text><text x="392" y="164">TX</text><text x="392" y="247">Servo signal</text><text x="392" y="304">Servo signal</text>
+    <text x="608" y="124" text-anchor="end">D8</text><text x="772" y="124">IRQ</text><text x="608" y="148" text-anchor="end">D9</text><text x="772" y="148">CE</text><text x="608" y="172" text-anchor="end">D10</text><text x="772" y="172">CSN</text><text x="608" y="196" text-anchor="end">D11</text><text x="772" y="196">MOSI</text><text x="608" y="220" text-anchor="end">D12</text><text x="772" y="220">MISO</text><text x="608" y="244" text-anchor="end">D13</text><text x="772" y="244">SCK</text>
+    <text x="608" y="280" text-anchor="end">3V3</text><text x="772" y="280">VCC</text>
+  </g>
+  <g class="m">
+    <text x="232" y="110">Data out</text><text x="282" y="143">Divider</text><text x="876" y="365">2.4 GHz link</text><text x="676" y="430">SPI</text><text x="344" y="430">USB</text>
+  </g>
+</svg></div>
+      <p class="silk fine above">Pin numbers shown are the ones given in the paper, or fixed by the Nano's SPI bus.</p>
+      <div class="grid g3"><article class="ic"><p class="silk">Sensor</p><h3>TF Mini LiDAR</h3><p>Measures range. It talks 3.3 V serial, so the line from the 5 V Nano into it goes through a resistor divider.</p></article><article class="ic"><p class="silk">Motion</p><h3>Two 9 g servos</h3><p>Pan and tilt the sensor on a 3D-printed mount.</p></article><article class="ic"><p class="silk">Controller</p><h3>Arduino Nano</h3><p>Steps the servos and reads the sensor at each angle.</p></article><article class="ic"><p class="silk">Radio</p><h3>nRF24L01 link</h3><p>On the Nano's SPI bus with chip-select, enable and interrupt on D10, D9 and D8. Sends each angle and range.</p></article><article class="ic"><p class="silk">Ground station</p><h3>Nano on Veroboard</h3><p>A second Nano and radio, hand-wired, feeding the laptop over USB.</p></article><article class="ic"><p class="silk">Software</p><h3>Processing sketch</h3><p>Plots every point as the scan runs.</p></article></div>
+      <div class="grid g3"><figure class="fig"><img src="img/lidar-proto.webp" alt="The scanner prototype: the LiDAR on its printed mount, wired to an Arduino Nano on a clear base" loading="lazy"></figure><figure class="fig"><img src="img/lidar-ground.webp" alt="An Arduino Nano and a radio module soldered on a Veroboard" loading="lazy"></figure><figure class="fig"><img src="img/lidar-ground-back.webp" alt="Solder side of the Veroboard ground station with hand-routed wire links" loading="lazy"></figure></div>
+    </section>
+    <section class="note" aria-label="My part"><p class="silk">My part</p><p>I designed the mount, built the scanner and its ground station, wrote the plotting code and ran the tests. The paper is co-authored with my mentor, <strong>Shekhar Jain</strong>.</p></section>
+    <section class="part" id="scans" aria-labelledby="scans-h">
+      <div class="part__head"><p class="silk">02 · Real scans</p><h2 id="scans-h">Scanner tests in rooms and over a water tub</h2><p>Point clouds from the prototype. Tested in a lit room, a dark room and daylight, then over a tub of water with sand and blocks on the bottom. A full scan takes about ten minutes.</p></div>
+      <div class="grid g3"><figure class="fig"><img src="img/lidar-scan-1.webp" alt="White point cloud of a room on a black background" loading="lazy"></figure><figure class="fig"><img src="img/lidar-scan-2.webp" alt="Point cloud of a room corner on a black background" loading="lazy"></figure><figure class="fig"><img src="img/lidar-scan-3.webp" alt="Point cloud of a third scan on a black background" loading="lazy"></figure></div>
+    </section>
+    <section class="part" id="fixes" aria-labelledby="fixes-h">
+      <div class="part__head"><p class="silk">03 · What went wrong</p><h2 id="fixes-h">Two scanner problems the tests exposed</h2></div>
+      <div class="grid split"><div class="stack"><ul class="rows"><li><b>The first mount was bulky</b><p>It was built round full-size metal-gear servos. I redesigned it for 9 g micro servos.</p></li><li><b>Room light added noise to the scans</b><p>Scans were cleaner in low light and with the sensor close to the water surface.</p></li></ul><p><a class="btn" href="https://ijournals.in/journal/index.php/ijshre/article/view/70" rel="noopener">Read the paper</a></p></div><figure class="fig fig--light"><img src="img/lidar-hero.webp" alt="Fusion 360 model of the two-servo pan and tilt bracket" loading="lazy"></figure></div>
+    </section>
+    </div>
+  </main>
+  <footer class="contact" id="contact">
+    <div><h2>Hire Aadi for summer 2027</h2><p>Hardware, robotics or embedded systems. Write to verma203@purdue.edu.</p></div>
+    <a class="sw" href="mailto:verma203@purdue.edu"><b></b>Email Aadi</a>
+    <div class="contact__links silk"><a href="index.html">Home</a><a href="rover.html">Grain-bin rover</a><a href="research.html">Solar-cell research</a><a href="arm.html">Prosthetic forearm</a><a href="lidar.html">LiDAR scanner</a><a href="https://www.linkedin.com/in/aadi-verma-ee/" rel="noopener">LinkedIn</a><a href="https://ijournals.in/journal/index.php/ijshre/article/view/70" rel="noopener">Published paper</a><span>&copy; 2026 Aadi Verma</span></div>
+  </footer>
+</div></div>
+<script src="pcb.js" defer></script>
+</body>
+</html>

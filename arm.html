@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modular prosthetic forearm: a 3D-printed twist-lock design by Aadi Verma</title>
+<meta name="description" content="A low-cost printed forearm with swappable attachments, opening on a 3D model you can turn, then the parts, the concepts and the lock that replaced a failed joint.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Modular prosthetic forearm: a 3D-printed twist-lock design by Aadi Verma">
+<meta property="og:description" content="A low-cost printed forearm with swappable attachments, opening on a 3D model you can turn, then the parts, the concepts and the lock that replaced a failed joint.">
+<meta property="og:image" content="https://aadiverma-ee.github.io/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#15171a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/urbanist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="pcb.css">
+</head>
+<body style="--w: #ffd23f">
+<div class="bench"><div class="board">
+  <span class="hole a"></span><span class="hole b"></span><span class="hole c"></span><span class="hole d"></span>
+  <header class="hdr page-hdr">
+    <a class="home" href="index.html">Aadi Verma</a>
+    <nav class="pins" aria-label="Projects"><a href="rover.html" style="--c: #ef4444"><span class="pill"><span class="bands"><b style="--b: #d93a32"></b><b style="--b: #d93a32"></b></span>Rover<b class="tol"></b></span></a><a href="research.html" style="--c: #4f9dff"><span class="pill"><span class="bands"><b style="--b: #3d7fe0"></b><b style="--b: #8a8f95"></b></span>Research<b class="tol"></b></span></a><a href="arm.html" style="--c: #ffd23f" aria-current="page"><span class="pill"><span class="bands"><b style="--b: #f2c400"></b><b style="--b: #7a4fb5"></b></span>Arm<b class="tol"></b></span></a><a href="lidar.html" style="--c: #f4f4f1"><span class="pill"><span class="bands"><b style="--b: #f6f6f1"></b><b style="--b: #6b3f1d"></b></span>Scanner<b class="tol"></b></span></a></nav>
+    <a class="sw" href="mailto:verma203@purdue.edu"><b></b>Email Aadi</a>
+  </header>
+  <main>
+    <section class="hero" id="top" aria-labelledby="hero-h">
+      <div class="hero__head">
+        <p class="silk">P3 · 3D-printed · not yet worn</p>
+        <h1 id="hero-h">Prosthetic forearm with a twist lock</h1>
+        <p class="lead">A low-cost, 3D-printed forearm for arm amputees. One socket takes a claw, a gripper or a ring. Swap the attachment below, or open The lock to watch it twist on.</p>
+      </div>
+      <div class="disp" style="--dh-m: 62svh">
+        <div class="disp__screen"><p>Loading the 3D model</p><iframe src="viewers/arm/index.html" title="3D model of the prosthetic forearm with swappable attachments" allow="fullscreen"></iframe></div>
+        <div class="disp__foot silk"><span>LCD1 · 3D model</span><span>Rebuilt from photos of the printed prototype · dimensions are estimates</span></div>
+      </div>
+      <p class="lead lead--below" aria-hidden="true">A low-cost, 3D-printed forearm for arm amputees. One socket takes a claw, a gripper or a ring. Swap the attachment below, or open The lock to watch it twist on.</p>
+    </section>
+    <div class="run">
+      <nav class="rail" aria-label="On this page"><p class="silk">J2 · Jump to</p><ol><li><a href="#top"><i></i>3D model</a></li><li><a href="#parts"><i></i>Parts</a></li><li><a href="#concepts"><i></i>Concepts</a></li><li><a href="#lock"><i></i>The lock</a></li><li><a href="#tests"><i></i>Test prints</a></li><li><a href="#contact"><i></i>Contact</a></li></ol></nav>
+      <p class="run__lead silk">Follow the wire for the build</p>
+    <section class="part" id="parts" aria-labelledby="parts-h">
+      <div class="part__head"><p class="silk">01 · The parts</p><h2 id="parts-h">One forearm socket, three attachments</h2><p>The wearer swaps attachments without help. These are the original CAD renders; the model above is rebuilt from photos of the print.</p></div>
+      <div class="grid g3"><article class="ic"><p class="silk">Part 1</p><h3>Forearm socket</h3><p>23.3 cm long, the 50th-percentile forearm length.</p></article><article class="ic"><p class="silk">Part 2</p><h3>Twist lock</h3><p>Four lugs on the socket. The attachment turns onto them.</p></article><article class="ic"><p class="silk">Part 3</p><h3>Locking key</h3><p>Pushes in once the attachment is seated, so it cannot turn back.</p></article><article class="ic"><p class="silk">Part 4</p><h3>Claw</h3><p>One of three attachments, each shaped for one task.</p></article><article class="ic"><p class="silk">Part 5</p><h3>Two-finger gripper</h3><p>Swaps onto the same four lugs as the claw.</p></article><article class="ic"><p class="silk">Part 6</p><h3>Ring</h3><p>The attachment shown locked on in the model above.</p></article></div>
+      <div class="grid g1"><figure class="fig fig--lilac fig--wide"><img src="img/arm-cad.webp" alt="Fusion 360 renders of the black forearm shell, the ring and hook attachments and the four-lug locking face" loading="lazy"></figure></div>
+    </section>
+    <section class="part" id="concepts" aria-labelledby="concepts-h">
+      <div class="part__head"><p class="silk">02 · Choosing the design</p><h2 id="concepts-h">Five forearm concepts scored against six specs</h2></div>
+      <div class="grid split"><div class="stack"><p class="t-lead">An arm amputee ranked the same design first, and noted that the most natural-looking hand was the least useful.</p><dl class="spec"><div><dt>Motorised hand</dt><dd>12 of 20</dd></div><div><dt>Body-powered hook</dt><dd>15 of 20</dd></div><div><dt>Silicone hand</dt><dd>11 of 20</dd></div><div><dt>Activity-specific attachments, built</dt><dd>17 of 20</dd></div><div><dt>Body-controlled full hand</dt><dd>12 of 20</dd></div></dl></div><figure class="fig fig--paper fig--tall"><img src="img/arm-sketch.webp" alt="Pencil sketches of four prosthetic concepts with handwritten notes" loading="lazy"></figure></div>
+    </section>
+    <section class="note" aria-label="My part"><p class="silk">My part</p><p>I took this from five sketches to a printed forearm: interviewed an amputee, scored the concepts, tested the joints that failed and designed the lock. <strong>No one has worn it yet.</strong></p></section>
+    <section class="part" id="lock" aria-labelledby="lock-h">
+      <div class="part__head"><p class="silk">03 · What went wrong</p><h2 id="lock-h">A joint that failed, and the lock that replaced it</h2></div>
+      <div class="grid split"><div class="stack"><ul class="rows"><li><b>The 180° joint limited the attachments</b><p>It turned on one axis only, and attachments could work loose and break it.</p></li><li><b>Replaced it with a four-lug twist lock</b><p>Turn the attachment onto the lugs, push in the key, and it stays put.</p></li><li><b>The first socket was narrow and hard</b><p>Modelled a separate insert to line and pad it.</p></li></ul></div><figure class="fig fig--tall" style="background:none;box-shadow:none"><img style="object-fit:contain" src="img/arm-lock.webp" alt="Close-up photos of the printed four-lug socket and the bases of the attachments" loading="lazy"></figure></div>
+    </section>
+    <section class="part" id="tests" aria-labelledby="tests-h">
+      <div class="part__head"><p class="silk">04 · Test prints</p><h2 id="tests-h">Forearm test models marked up with what failed</h2><p>Early prints tried the joint, the socket fit and a laser-cut ring before the final design.</p></div>
+      <div class="grid g2"><figure class="fig fig--paper"><img src="img/arm-tests.webp" alt="Annotated photos of early test models: a forearm with a rotating joint, a laser-cut ring and a socket" loading="lazy"></figure><figure class="fig fig--paper"><img src="img/arm-table.webp" alt="Table scoring five designs against six specifications, with the amputee&#x27;s ranking below" loading="lazy"></figure></div>
+    </section>
+    </div>
+  </main>
+  <footer class="contact" id="contact">
+    <div><h2>Hire Aadi for summer 2027</h2><p>Hardware, robotics or embedded systems. Write to verma203@purdue.edu.</p></div>
+    <a class="sw" href="mailto:verma203@purdue.edu"><b></b>Email Aadi</a>
+    <div class="contact__links silk"><a href="index.html">Home</a><a href="rover.html">Grain-bin rover</a><a href="research.html">Solar-cell research</a><a href="arm.html">Prosthetic forearm</a><a href="lidar.html">LiDAR scanner</a><a href="https://www.linkedin.com/in/aadi-verma-ee/" rel="noopener">LinkedIn</a><a href="https://ijournals.in/journal/index.php/ijshre/article/view/70" rel="noopener">Published paper</a><span>&copy; 2026 Aadi Verma</span></div>
+  </footer>
+</div></div>
+<script src="pcb.js" defer></script>
+</body>
+</html>
