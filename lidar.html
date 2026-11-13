@@ -13,7 +13,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#15171a">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preload" href="fonts/urbanist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="urbanist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="pcb.css">
 </head>
 <body style="--w: #f4f4f1">
@@ -32,7 +32,7 @@
         <p class="lead">A TF Mini LiDAR on two servos sweeps a scene and radios each point to a laptop, which draws the terrain live. Built to scan underwater ground from above. Watch it scan a room below.</p>
       </div>
       <div class="disp" style="--dh-m: 70svh">
-        <div class="disp__screen"><p>Loading the 3D model</p><iframe src="viewers/lidar/index.html" title="Scan demo: the scanner sweeping a room on the left, the point cloud building on the right" allow="fullscreen"></iframe></div>
+        <div class="disp__screen"><p>Loading the 3D model</p><iframe src="viewer-lidar.html" title="Scan demo: the scanner sweeping a room on the left, the point cloud building on the right" allow="fullscreen"></iframe></div>
         <div class="disp__foot silk"><span>LCD1 · Scan demo</span><span>Simulated room · scanner model rebuilt from the original renders and the paper</span></div>
       </div>
       <p class="lead lead--below" aria-hidden="true">A TF Mini LiDAR on two servos sweeps a scene and radios each point to a laptop, which draws the terrain live. Built to scan underwater ground from above. Watch it scan a room below.</p>
@@ -73,16 +73,16 @@
 </svg></div>
       <p class="silk fine above">Pin numbers shown are the ones given in the paper, or fixed by the Nano's SPI bus.</p>
       <div class="grid g3"><article class="ic"><p class="silk">Sensor</p><h3>TF Mini LiDAR</h3><p>Measures range. It talks 3.3 V serial, so the line from the 5 V Nano into it goes through a resistor divider.</p></article><article class="ic"><p class="silk">Motion</p><h3>Two 9 g servos</h3><p>Pan and tilt the sensor on a 3D-printed mount.</p></article><article class="ic"><p class="silk">Controller</p><h3>Arduino Nano</h3><p>Steps the servos and reads the sensor at each angle.</p></article><article class="ic"><p class="silk">Radio</p><h3>nRF24L01 link</h3><p>On the Nano's SPI bus with chip-select, enable and interrupt on D10, D9 and D8. Sends each angle and range.</p></article><article class="ic"><p class="silk">Ground station</p><h3>Nano on Veroboard</h3><p>A second Nano and radio, hand-wired, feeding the laptop over USB.</p></article><article class="ic"><p class="silk">Software</p><h3>Processing sketch</h3><p>Plots every point as the scan runs.</p></article></div>
-      <div class="grid g3"><figure class="fig"><img src="img/lidar-proto.webp" alt="The scanner prototype: the LiDAR on its printed mount, wired to an Arduino Nano on a clear base" loading="lazy"></figure><figure class="fig"><img src="img/lidar-ground.webp" alt="An Arduino Nano and a radio module soldered on a Veroboard" loading="lazy"></figure><figure class="fig"><img src="img/lidar-ground-back.webp" alt="Solder side of the Veroboard ground station with hand-routed wire links" loading="lazy"></figure></div>
+      <div class="grid g3"><figure class="fig"><img src="lidar-proto.webp" alt="The scanner prototype: the LiDAR on its printed mount, wired to an Arduino Nano on a clear base" loading="lazy"></figure><figure class="fig"><img src="lidar-ground.webp" alt="An Arduino Nano and a radio module soldered on a Veroboard" loading="lazy"></figure><figure class="fig"><img src="lidar-ground-back.webp" alt="Solder side of the Veroboard ground station with hand-routed wire links" loading="lazy"></figure></div>
     </section>
     <section class="note" aria-label="My part"><p class="silk">My part</p><p>I designed the mount, built the scanner and its ground station, wrote the plotting code and ran the tests. The paper is co-authored with my mentor, <strong>Shekhar Jain</strong>.</p></section>
     <section class="part" id="scans" aria-labelledby="scans-h">
       <div class="part__head"><p class="silk">02 · Real scans</p><h2 id="scans-h">Scanner tests in rooms and over a water tub</h2><p>Point clouds from the prototype. Tested in a lit room, a dark room and daylight, then over a tub of water with sand and blocks on the bottom. A full scan takes about ten minutes.</p></div>
-      <div class="grid g3"><figure class="fig"><img src="img/lidar-scan-1.webp" alt="White point cloud of a room on a black background" loading="lazy"></figure><figure class="fig"><img src="img/lidar-scan-2.webp" alt="Point cloud of a room corner on a black background" loading="lazy"></figure><figure class="fig"><img src="img/lidar-scan-3.webp" alt="Point cloud of a third scan on a black background" loading="lazy"></figure></div>
+      <div class="grid g3"><figure class="fig"><img src="lidar-scan-1.webp" alt="White point cloud of a room on a black background" loading="lazy"></figure><figure class="fig"><img src="lidar-scan-2.webp" alt="Point cloud of a room corner on a black background" loading="lazy"></figure><figure class="fig"><img src="lidar-scan-3.webp" alt="Point cloud of a third scan on a black background" loading="lazy"></figure></div>
     </section>
     <section class="part" id="fixes" aria-labelledby="fixes-h">
       <div class="part__head"><p class="silk">03 · What went wrong</p><h2 id="fixes-h">Two scanner problems the tests exposed</h2></div>
-      <div class="grid split"><div class="stack"><ul class="rows"><li><b>The first mount was bulky</b><p>It was built round full-size metal-gear servos. I redesigned it for 9 g micro servos.</p></li><li><b>Room light added noise to the scans</b><p>Scans were cleaner in low light and with the sensor close to the water surface.</p></li></ul><p><a class="btn" href="https://ijournals.in/journal/index.php/ijshre/article/view/70" rel="noopener">Read the paper</a></p></div><figure class="fig fig--light"><img src="img/lidar-hero.webp" alt="Fusion 360 model of the two-servo pan and tilt bracket" loading="lazy"></figure></div>
+      <div class="grid split"><div class="stack"><ul class="rows"><li><b>The first mount was bulky</b><p>It was built round full-size metal-gear servos. I redesigned it for 9 g micro servos.</p></li><li><b>Room light added noise to the scans</b><p>Scans were cleaner in low light and with the sensor close to the water surface.</p></li></ul><p><a class="btn" href="https://ijournals.in/journal/index.php/ijshre/article/view/70" rel="noopener">Read the paper</a></p></div><figure class="fig fig--light"><img src="lidar-hero.webp" alt="Fusion 360 model of the two-servo pan and tilt bracket" loading="lazy"></figure></div>
     </section>
     </div>
   </main>

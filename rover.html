@@ -13,7 +13,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#15171a">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preload" href="fonts/urbanist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="urbanist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="pcb.css">
 </head>
 <body style="--w: #ef4444">
@@ -32,7 +32,7 @@
         <p class="lead">A robot that drives on stored corn and breaks up crusts, so nobody climbs into the bin. I designed, printed, wired and bench-tested the first rover, 397 mm long.</p>
       </div>
       <div class="disp" style="--dh-m: 62svh">
-        <div class="disp__screen"><p>Loading the 3D model</p><iframe src="viewers/rover/index.html" title="3D model of the rover: drag to spin, or pull it apart" allow="fullscreen"></iframe></div>
+        <div class="disp__screen"><p>Loading the 3D model</p><iframe src="viewer-rover.html" title="3D model of the rover: drag to spin, or pull it apart" allow="fullscreen"></iframe></div>
         <div class="disp__foot silk"><span>LCD1 · 3D model from my CAD</span><span>Drag to spin · Pull apart to see inside</span></div>
       </div>
       <p class="lead lead--below" aria-hidden="true">A robot that drives on stored corn and breaks up crusts, so nobody climbs into the bin. I designed, printed, wired and bench-tested the first rover, 397 mm long.</p>
@@ -72,11 +72,11 @@
 </svg></div>
       <div class="grid g2 pinmap"><div><p class="silk">Wired by me</p><dl class="spec"><div><dt>D3, D5</dt><dd>Left encoder, blue and white</dd></div><div><dt>A2, A3</dt><dd>Right encoder, blue and white</dd></div><div><dt>A4, A5</dt><dd>Tilt sensor, SDA and SCL</dd></div><div><dt>5V</dt><dd>Both encoders and the sensor, joined</dd></div><div><dt>M1, M2 terminals</dt><dd>Left and right motor leads</dd></div><div><dt>VIN, GND terminals</dt><dd>12 V bench supply</dd></div></dl></div><div><p class="silk">Used by the shield</p><dl class="spec"><div><dt>D2, D4</dt><dd>Left motor direction</dd></div><div><dt>D7, D8</dt><dd>Right motor direction</dd></div><div><dt>D9, D10</dt><dd>Speed, PWM at 20 kHz</dd></div><div><dt>D6, D12</dt><dd>Driver enable and fault</dd></div><div><dt>A0, A1</dt><dd>Motor current sense</dd></div><div><dt>Arduino VIN</dt><dd>Not connected: the Uno runs from USB</dd></div></dl></div></div>
       <div class="grid g3"><article class="ic"><p class="silk">Controller</p><h3>Arduino Uno</h3><p>Powered over USB, kept apart from the 12 V motor supply. Prints a log line every 100 ms at 115,200 baud.</p></article><article class="ic"><p class="silk">Motor driver</p><h3>Pololu Dual VNH5019 shield</h3><p>Left on its default pins. Drives both motors at 20 kHz and reports each one's current and faults.</p></article><article class="ic"><p class="silk">Motors</p><h3>Two goBILDA 5203, 50.9:1</h3><p>117 rpm at the output shaft, one motor for each drum.</p></article><article class="ic"><p class="silk">Encoders</p><h3>Quadrature, on four pins</h3><p>Decoded on every edge with pin-change interrupts and a lookup table: 1,425 counts per output turn.</p></article><article class="ic"><p class="silk">Tilt sensor</p><h3>Adafruit LSM6DSOX</h3><p>On the I2C bus. Flat on the bench it reads 10.0 m/s² vertical.</p></article><article class="ic"><p class="silk">Power</p><h3>12 V bench supply</h3><p>Current limit set to 3 A. It stands in for the tether the rover would run on in a bin.</p></article></div>
-      <div class="grid g2"><figure class="fig fig--light"><img src="img/rover-inside.webp" alt="The rover model with its lid off, showing the control boards in the body" loading="lazy"></figure><figure class="fig"><img src="img/rover-build-2.webp" alt="Inside the real body: the motor shield, a small red breadboard and encoder wires" loading="lazy"></figure></div>
+      <div class="grid g2"><figure class="fig fig--light"><img src="rover-inside.webp" alt="The rover model with its lid off, showing the control boards in the body" loading="lazy"></figure><figure class="fig"><img src="rover-build-2.webp" alt="Inside the real body: the motor shield, a small red breadboard and encoder wires" loading="lazy"></figure></div>
     </section>
     <section class="part" id="parts" aria-labelledby="parts-h">
       <div class="part__head"><p class="silk">02 · What it is</p><h2 id="parts-h">A printed rover body on two screw drums</h2><p>Every part is sized from the vendors' own CAD files, so the model above is the rover I built.</p></div>
-      <div class="grid g1"><figure class="fig fig--light fig--wide"><img src="img/rover-apart.webp" alt="The rover pulled apart: end plates, body, a drum with its PVC core and hubs, the motors and the control boards" loading="lazy"></figure></div>
+      <div class="grid g1"><figure class="fig fig--light fig--wide"><img src="rover-apart.webp" alt="The rover pulled apart: end plates, body, a drum with its PVC core and hubs, the motors and the control boards" loading="lazy"></figure></div>
       <div class="grid g3 facts"><div><b>397 × 229 × 152 mm</b><span>Overall size</span></div><div><b>3.5 in</b><span>Screw flights on 1-1/2 in PVC cores</span></div><div><b>41 h</b><span>Print time for 6 plates of PETG</span></div></div>
     </section>
     <section class="part" id="drive" aria-labelledby="drive-h">
@@ -86,15 +86,15 @@
     <section class="note" aria-label="My part"><p class="silk">My part</p><p>I did this rover end to end: the CAD in Python, six plates of printing, the wiring and the first power-up. It has run on a bench. <strong>It has not driven on corn yet.</strong></p></section>
     <section class="part" id="build" aria-labelledby="build-h">
       <div class="part__head"><p class="silk">04 · The build</p><h2 id="build-h">A rover printed, laser-cut and wired by hand</h2><p>PETG body and drum sleeves from a Bambu P2S. Plywood end plates and an acrylic lid cut at Purdue's Bechtel Innovation Design Center.</p></div>
-      <div class="grid g2"><figure class="fig fig--light"><img src="img/rover-build-1.webp" alt="The built rover body upside down on a bench with both motors wired" loading="lazy"></figure><figure class="fig"><img src="img/rover-build-3.webp" alt="The plywood front plate with both motors and their encoder cables" loading="lazy"></figure></div>
+      <div class="grid g2"><figure class="fig fig--light"><img src="rover-build-1.webp" alt="The built rover body upside down on a bench with both motors wired" loading="lazy"></figure><figure class="fig"><img src="rover-build-3.webp" alt="The plywood front plate with both motors and their encoder cables" loading="lazy"></figure></div>
     </section>
     <section class="part" id="test" aria-labelledby="test-h">
       <div class="part__head"><p class="silk">05 · First test</p><h2 id="test-h">Both motors within 3% at first power-up</h2></div>
-      <div class="grid split"><div class="stack"><p class="t-lead">Bench test at 25% power, logging encoder counts, motor current and tilt about ten times a second.</p><dl class="spec"><div><dt>Motors and encoders</dt><dd>2 of 2 working</dd></div><div><dt>Left against right speed</dt><dd>Within 3%</dd></div><div><dt>Drum speed</dt><dd>22 to 23 rpm</dd></div><div><dt>Motor-driver faults</dt><dd>0</dd></div><div><dt>Tilt sensor, flat</dt><dd>10.0 m/s² vertical</dd></div><div><dt>Tests in corn</dt><dd>Not run yet</dd></div></dl></div><figure class="fig fig--paper fig--log"><img src="img/rover-serial.webp" alt="Serial monitor log from the bench run: encoder counts, motor current and tilt on each line" loading="lazy"></figure></div>
+      <div class="grid split"><div class="stack"><p class="t-lead">Bench test at 25% power, logging encoder counts, motor current and tilt about ten times a second.</p><dl class="spec"><div><dt>Motors and encoders</dt><dd>2 of 2 working</dd></div><div><dt>Left against right speed</dt><dd>Within 3%</dd></div><div><dt>Drum speed</dt><dd>22 to 23 rpm</dd></div><div><dt>Motor-driver faults</dt><dd>0</dd></div><div><dt>Tilt sensor, flat</dt><dd>10.0 m/s² vertical</dd></div><div><dt>Tests in corn</dt><dd>Not run yet</dd></div></dl></div><figure class="fig fig--paper fig--log"><img src="rover-serial.webp" alt="Serial monitor log from the bench run: encoder counts, motor current and tilt on each line" loading="lazy"></figure></div>
     </section>
     <section class="part" id="fixes" aria-labelledby="fixes-h">
       <div class="part__head"><p class="silk">06 · What went wrong</p><h2 id="fixes-h">Four rover faults found and fixed</h2></div>
-      <div class="grid split"><div class="stack"><ul class="rows"><li><b>Drum-sleeve wall only 0.28 mm thick</b><p>Reworked it to 2.65 mm, then scanned every print file for thin walls.</p></li><li><b>Supports trapped in the ballast tank</b><p>Added a screwed hatch. Supports come out, ballast pours in.</p></li><li><b>Encoders needed a pin the shield used</b><p>Counted them with pin-change interrupts instead.</p></li><li><b>Both motors drew 0 A</b><p>Found cold joints on six power terminals and reflowed them.</p></li></ul></div><figure class="fig"><img src="img/rover-terminals.webp" alt="Underside of the motor shield with six reworked solder joints on the power terminals" loading="lazy"></figure></div>
+      <div class="grid split"><div class="stack"><ul class="rows"><li><b>Drum-sleeve wall only 0.28 mm thick</b><p>Reworked it to 2.65 mm, then scanned every print file for thin walls.</p></li><li><b>Supports trapped in the ballast tank</b><p>Added a screwed hatch. Supports come out, ballast pours in.</p></li><li><b>Encoders needed a pin the shield used</b><p>Counted them with pin-change interrupts instead.</p></li><li><b>Both motors drew 0 A</b><p>Found cold joints on six power terminals and reflowed them.</p></li></ul></div><figure class="fig"><img src="rover-terminals.webp" alt="Underside of the motor shield with six reworked solder joints on the power terminals" loading="lazy"></figure></div>
     </section>
     </div>
   </main>

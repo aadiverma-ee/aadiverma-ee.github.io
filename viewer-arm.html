@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head><meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modular Prosthetic Arm</title>
+<style>
+@font-face{font-family:"Urbanist";font-weight:100 900;font-display:swap;src:url("urbanist-latin-wght-normal.woff2") format("woff2")}
+@font-face{font-family:"DM Mono";font-weight:400;font-display:swap;src:url("dm-mono-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"DM Mono";font-weight:500;font-display:swap;src:url("dm-mono-latin-500-normal.woff2") format("woff2")}
+</style>
+<style>
+/* Layout idea: the 3D stage is the page; a single reading column sits to its right and a tool strip floats on the stage.
+   Palette comes from the hardware: white print, black print, and the orange of the locking key, used only for the lock and the chosen design. */
+:root {
+  --paper: #f3f4f5;
+  --paper-raised: #ffffff;
+  --ink: #1b1c20;
+  --ink-soft: #5c5f66;
+  --rule: #d9dbdf;
+  --key: #b0470f;
+  --key-tint: #f7e7dc;
+  --bar: #b9bcc3;
+  --stage-a: #8d9199;
+  --stage-b: #43464d;
+  --stage-ink: #f6f6f4;
+  --font-display: "Bricolage Grotesque", "Avenir Next Condensed", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17181b; --paper-raised: #212327; --ink: #eeeeec; --ink-soft: #a6a9af; --rule: #34373d;
+    --key: #f08c4e; --key-tint: #3b2a1f; --bar: #565a62; --stage-a: #666a72; --stage-b: #25272b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17181b; --paper-raised: #212327; --ink: #eeeeec; --ink-soft: #a6a9af; --rule: #34373d;
+  --key: #f08c4e; --key-tint: #3b2a1f; --bar: #565a62; --stage-a: #666a72; --stage-b: #25272b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--key); outline-offset: 2px; }
+
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 28px; flex-wrap: wrap;
+  padding: 14px 22px 12px; border-bottom: 1px solid var(--rule); }
+.top h1 { font-family: var(--font-display); font-weight: 650; font-size: 25px; line-height: 1.1; letter-spacing: -0.015em; margin: 0; text-wrap: balance; }
+.top p { margin: 3px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+.views { display: flex; gap: 4px; padding: 3px; background: var(--key-tint); border-radius: 10px; }
+.views button { border: 0; background: transparent; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+.views button[aria-selected="true"] { background: var(--paper-raised); color: var(--ink); box-shadow: 0 1px 2px rgba(30, 25, 20, .18); }
+
+.main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 380px; }
+.stage { position: relative; min-height: 0; overflow: hidden; color: var(--stage-ink);
+  background: radial-gradient(120% 90% at 50% 30%, var(--stage-a), var(--stage-b)); touch-action: none; }
+.stage canvas { display: block; width: 100%; height: 100%; }
+.stage svg.leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stage svg.leaders line { stroke: rgba(255, 255, 255, .62); stroke-width: 1; }
+.stage svg.leaders circle { fill: #fff; }
+.tag { position: absolute; left: 0; top: 0; padding: 2px 8px; border-radius: 5px; font-size: 12.5px; font-weight: 500; white-space: nowrap;
+  background: rgba(22, 23, 26, .78); color: #fff; pointer-events: none; will-change: transform; font-variant-numeric: tabular-nums; }
+.fallback { position: absolute; inset: 0; display: none; place-items: center; padding: 24px; text-align: center; }
+.hint { position: absolute; top: 12px; left: 16px; font-size: 12.5px; opacity: .78; pointer-events: none; }
+.source { position: absolute; top: 10px; right: 14px; font-size: 12px; padding: 3px 9px; border-radius: 99px; background: rgba(22, 23, 26, .5); pointer-events: none; }
+
+.tools { position: absolute; left: 16px; right: 16px; bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; pointer-events: none; }
+.tools > * { pointer-events: auto; }
+.tool { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 9px; background: rgba(22, 23, 26, .72); backdrop-filter: blur(6px); font-size: 13.5px; }
+.tool label { font-weight: 500; }
+.tool input[type="range"] { width: 150px; accent-color: #f3a472; }
+button.tool { border: 0; cursor: pointer; color: #fff; font-weight: 500; }
+button.tool[aria-pressed="true"] { background: #fbeadd; color: #4a1f06; }
+.seg { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: rgba(22, 23, 26, .72); backdrop-filter: blur(6px); }
+.seg button { border: 0; background: transparent; color: #fff; padding: 4px 11px; border-radius: 7px; cursor: pointer; font-size: 13.5px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: #fbeadd; color: #4a1f06; }
+
+.panel { border-left: 1px solid var(--rule); overflow-y: auto; padding: 20px 22px 28px; }
+.col { display: flex; flex-direction: column; gap: 18px; }
+.panel h2 { font-family: var(--font-display); font-weight: 650; font-size: 21px; line-height: 1.15; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.panel h3 { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+.panel p { margin: 0; max-width: 62ch; }
+.lede { color: var(--ink-soft); }
+.sub { font-size: 12.5px; color: var(--ink-soft); }
+.parts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; counter-reset: part; }
+.part { border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-raised); overflow: hidden; }
+.part > button { width: 100%; display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 8px; padding: 10px 12px; border: 0; background: transparent; cursor: pointer; text-align: left; }
+.part > button::before { counter-increment: part; content: counter(part); font-size: 12.5px; font-weight: 600; color: var(--key);
+  width: 22px; height: 22px; border-radius: 50%; background: var(--key-tint); display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.part .name { font-weight: 600; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--rule); color: var(--ink-soft); white-space: nowrap; }
+.chip.on { border-color: transparent; background: var(--key-tint); color: var(--key); }
+.part.is-open { border-color: var(--key); }
+.part .body { display: none; padding: 0 12px 12px; flex-direction: column; gap: 10px; }
+.part.is-open .body { display: flex; }
+.part figure { margin: 0; display: flex; gap: 10px; align-items: flex-end; }
+.part img { max-height: 190px; width: auto; max-width: 45%; border-radius: 6px; display: block; }
+.part figcaption { font-size: 12.5px; color: var(--ink-soft); }
+dl.dims { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; font-size: 13.5px; }
+dl.dims dt { color: var(--ink-soft); }
+dl.dims dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+.box { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-raised); }
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 0; }
+.readouts div { display: flex; flex-direction: column; }
+.readouts dt { font-size: 12.5px; color: var(--ink-soft); }
+.readouts dd { margin: 0; font-family: var(--font-display); font-weight: 650; font-size: 21px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.readouts dd small { font-family: var(--font-body); font-weight: 500; font-size: 13px; color: var(--ink-soft); margin-left: 3px; }
+.readouts .hot dd { color: var(--key); }
+
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; counter-reset: step; }
+.steps li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-raised); }
+.steps li::before { counter-increment: step; content: counter(step); font-size: 12.5px; font-weight: 600; width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--paper); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.steps b { display: block; font-weight: 600; }
+.steps span { color: var(--ink-soft); font-size: 13.5px; }
+.steps li.is-now { border-color: var(--key); }
+.steps li.is-now::before { background: var(--key-tint); color: var(--key); }
+
+.bars { position: relative; display: flex; flex-direction: column; gap: 9px; }
+.bar-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline; cursor: default; border-radius: 6px; }
+.bar-row .lab { font-size: 13.5px; }
+.bar-row .lab b { font-weight: 600; }
+.bar-row .val { font-size: 13.5px; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.bar-row .track { grid-column: 1 / -1; height: 10px; border-radius: 0 4px 4px 0; background: transparent; border-left: 1px solid var(--rule); }
+.bar-row .fill { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--bar); }
+.bar-row.is-pick .fill { background: var(--key); }
+.bar-row.is-pick .val { color: var(--ink); font-weight: 600; }
+.tip { position: absolute; z-index: 2; pointer-events: none; padding: 6px 9px; border-radius: 6px; background: var(--ink); color: var(--paper); font-size: 12.5px; line-height: 1.45;
+  display: none; font-variant-numeric: tabular-nums; max-width: 260px; }
+details.table summary { cursor: pointer; font-size: 13.5px; color: var(--ink-soft); }
+details.table .wrap { overflow-x: auto; }
+details.table table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+details.table th, details.table td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+details.table th:first-child, details.table td:first-child { text-align: left; }
+details.table th { font-weight: 600; color: var(--ink-soft); }
+details.table .pick { color: var(--key); font-weight: 600; }
+.note { font-size: 13px; color: var(--ink-soft); border-left: 3px solid var(--rule); padding-left: 10px; }
+[hidden] { display: none !important; }
+
+@media (max-width: 860px) {
+  body { height: auto; min-height: 100%; }
+  .main { grid-template-columns: 1fr; }
+  .stage { height: 62vh; min-height: 340px; }
+  .panel { border-left: 0; border-top: 1px solid var(--rule); overflow: visible; padding: 18px 16px 28px; }
+  .top { padding: 12px 16px; }
+  .tool input[type="range"] { width: 110px; }
+  .source { display: none; }
+}
+
+:root, :root[data-theme="dark"] {
+  --paper: #101312; --paper-raised: #191d1b; --ink: #eef3ee; --ink-soft: #a9b7ae; --rule: #2a322e;
+  --board: #8fd3b0; --board-tint: #17382b; --emit: #ff6a52; --stage-a: #7d827e; --stage-b: #2c302d; --stage-ink: #f4f6f3;
+  --font-display: "Urbanist", system-ui, sans-serif; --font-body: "Urbanist", system-ui, sans-serif; color-scheme: dark;
+}
+header.top > div:first-child { display: none !important; }
+header.top { justify-content: flex-start !important; padding-top: 10px !important; padding-bottom: 10px !important; }
+
+.main { grid-template-columns: minmax(0, 1fr) !important; grid-template-rows: minmax(0, 1fr) !important; }
+.panel, #tab-sizing, #shot { display: none !important; }
+@media (max-width: 860px) { body { height: 100% !important; } .stage { height: auto !important; min-height: 0 !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Modular prosthetic arm</h1>
+    <p>Project 7. A low-cost printed forearm with attachments that twist on and lock with a key.</p>
+  </div>
+  <nav class="views" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-attachments" data-view="attachments" aria-selected="true">Attachments</button>
+    <button role="tab" id="tab-the-lock" data-view="the-lock" aria-selected="false">The lock</button>
+    <button role="tab" id="tab-sizing" data-view="sizing" aria-selected="false">Sizing</button>
+  </nav>
+</header>
+
+<div class="main">
+  <section class="stage" id="stage" aria-label="3D model">
+    <canvas id="gl"></canvas>
+    <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+    <div id="tags" aria-hidden="true"></div>
+    <div class="hint" id="hint">Drag to spin. Click a part.</div>
+    <div class="source">3D model rebuilt from photos of the print</div>
+    <div class="fallback" id="fallback">This view needs WebGL, which this browser has turned off. Open the page in a current desktop browser to see the model.</div>
+
+    <div class="tools" id="tools-attachments">
+      <div class="seg" role="group" aria-label="Attachment">
+        <button id="att-ring" aria-pressed="true">Ring</button><button id="att-claw" aria-pressed="false">Claw</button>
+      </div>
+      <div class="tool"><label for="explode">Explode</label><input type="range" id="explode" min="0" max="100" value="0"></div>
+      <button class="tool" id="labels" aria-pressed="true">Labels</button>
+      <button class="tool" id="reset">Reset view</button>
+      <button class="tool" id="shot" hidden>Save image</button>
+    </div>
+    <div class="tools" id="tools-the-lock" hidden>
+      <button class="tool" id="play">Play</button>
+      <div class="tool"><label for="lock">Attach</label><input type="range" id="lock" min="0" max="100" value="100"></div>
+      <button class="tool" id="section" aria-pressed="true">Section cut</button>
+      <button class="tool" id="labels2" aria-pressed="true">Labels</button>
+      <button class="tool" id="reset2">Reset view</button>
+    </div>
+    <div class="tools" id="tools-sizing" hidden>
+      <div class="seg" role="group" aria-label="Size" id="sizes"></div>
+      <button class="tool" id="labels3" aria-pressed="true">Labels</button>
+      <button class="tool" id="reset3">Reset view</button>
+    </div>
+  </section>
+
+  <aside class="panel" id="panel">
+    <div id="panel-attachments" class="col">
+      <h2>One socket, a tool for each task</h2>
+      <p class="lede">A body-powered hook does one job. This arm keeps the forearm and swaps the hand: each attachment is shaped for one activity and changes over in seconds, without help.</p>
+      <ol class="parts" id="parts"></ol>
+      <div class="col" style="gap:10px">
+        <div>
+          <h3>Why this design</h3>
+          <p class="sub">Five first ideas scored against the specification, out of 20. Hover a bar for the breakdown.</p>
+        </div>
+        <div class="bars" id="bars"><div class="tip" id="tip"></div></div>
+        <details class="table">
+          <summary>Scores by specification</summary>
+          <div class="wrap"><table id="score-table"></table></div>
+        </details>
+      </div>
+      <p class="note">An arm amputee who reviewed the five ideas ranked the activity-specific design first, because it met the most of the specification.</p>
+    </div>
+
+    <div id="panel-the-lock" class="col" hidden>
+      <h2>Twist on, pin with the key</h2>
+      <p class="lede">Changing an attachment takes one hand: a short turn and a key. Drag the Attach slider or press Play, and use Section cut to see what holds it.</p>
+      <div class="box">
+        <dl class="readouts">
+          <div class="hot"><dt>Turn still to go</dt><dd><span id="r-turn"></span><small>°</small></dd></div>
+          <div><dt>State</dt><dd id="r-state" style="font-size:18px"></dd></div>
+        </dl>
+      </div>
+      <ol class="steps" id="steps">
+        <li><div><b>Line up</b><span>Hold the attachment an eighth of a turn off, so its four slots sit over the four lugs on the wrist end.</span></div></li>
+        <li><div><b>Lower</b><span>The slots pass over the lugs and the collar seats on the socket.</span></div></li>
+        <li><div><b>Turn 45° clockwise</b><span>The lugs travel round a channel inside the collar and end up under solid plastic, so the attachment cannot lift off.</span></div></li>
+        <li><div><b>Push in the key</b><span>The key goes through the collar wall into a lug and stops the collar turning back.</span></div></li>
+      </ol>
+      <p class="sub">To remove: pull the key, turn anticlockwise, lift.</p>
+      <p class="note">The four lugs, the slotted collar and the key are visible on the print. The channel inside the collar is drawn from how those parts must fit; it was not measured.</p>
+    </div>
+
+    <div id="panel-sizing" class="col" hidden>
+      <h2>Five sizes from one chart</h2>
+      <p class="lede">Printing makes each socket to order. Pick a size and the socket rescales to that row of the sizing chart. The twist-lock stays the same, so every attachment fits every arm.</p>
+      <div class="box">
+        <dl class="readouts">
+          <div><dt>Wrist, chart</dt><dd><span id="s-wrist"></span><small>cm round</small></dd></div>
+          <div><dt>Forearm, chart</dt><dd><span id="s-fore"></span><small>cm round</small></dd></div>
+          <div class="hot"><dt>Wrist end of socket</dt><dd><span id="s-neck"></span><small>mm across</small></dd></div>
+          <div class="hot"><dt>Open end of socket</dt><dd><span id="s-open"></span><small>mm</small></dd></div>
+        </dl>
+      </div>
+      <details class="table" open>
+        <summary>The sizing chart</summary>
+        <div class="wrap"><table id="size-table"></table></div>
+      </details>
+      <p class="note">Size M is the shape traced from the printed prototype. The other sizes are that shape scaled to the chart's wrist and forearm figures; length is held at 296 mm because the chart gives none.</p>
+    </div>
+  </aside>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "./model-three.module.min.js",
+  "three/addons/controls/OrbitControls.js": "./model-OrbitControls.js",
+  "three/addons/environments/RoomEnvironment.js": "./model-RoomEnvironment.js"
+} }
+</script>
+<script src="./arm-models.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const DATA = window.MODELS, $ = (id) => document.getElementById(id);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ss = (x, a, b) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+/* ------------------------------------------------------------------ content */
+const L = 296;                     // socket length, mm.  CAD: Z up, Z = 0 at the open end, -Y is the front
+const NECK = 62, OPEN = [98, 78];  // size M: wrist-end diameter, open-end width x depth
+const PARTS = [
+  { id: 'socket', name: 'Forearm socket', chip: 'Traced from photos', photo: 'socket', caption: 'The print, back view. The outline of the model was traced from this photo.',
+    text: 'A hollow shell shaped like a forearm: a straight round neck at the wrist, fuller toward the elbow, and not symmetrical. It is printed in two pieces that join at the seam. The open end has a longer front lobe with a cross hole.',
+    dims: [['Length', '296 mm'], ['Wrist end', '62 mm across'], ['Open end', '98 × 78 mm'], ['Wall', '3 mm'], ['Print split', '159 mm from the top']] },
+  { id: 'ring', name: 'Ring attachment', chip: 'Drawn from photos', photo: 'ring', caption: 'The printed ring on the arm.',
+    text: 'A bowed ring with a hooked tab on top, for holding and carrying round objects. Ring, neck and twist-lock collar are one printed piece.',
+    dims: [['Ring', '105 mm outside, 65 mm inside'], ['Height', '154 mm'], ['Collar', '64 mm across, 22 mm tall']] },
+  { id: 'claw', name: 'Claw attachment', chip: 'Drawn from photos', photo: 'claw', caption: 'The printed claw on the arm.',
+    text: 'Four curved fingers in two pairs that open front to back, for gripping. It uses the same collar, so it swaps with the ring.',
+    dims: [['Opening', 'about 96 mm'], ['Height', '123 mm'], ['Collar', '64 mm across, 22 mm tall']] },
+  { id: 'key', name: 'Locking key', chip: 'Drawn from photos',
+    text: 'A small square pin with a flat head. It passes through the collar into one of the lugs and stops the attachment turning.',
+    dims: [['Pin', '3 mm square, 12 mm long'], ['Head', '9 × 6 mm']] },
+];
+// Initial ideas scored against the specification (project design folder).  Order: aesthetic, audience, materials, size, user needs, function
+const SPECS = [['Aesthetic', 2], ['Target audience', 3], ['Materials', 4], ['Size', 3], ['User needs', 3], ['Function', 5]];
+const DESIGNS = [
+  { n: 1, name: 'Motorised hand', s: [1, 2, 2, 3, 2, 2], total: 12, rank: 2 },
+  { n: 2, name: 'Body-powered hook', s: [1, 2, 4, 3, 2, 3], total: 15, rank: 4 },
+  { n: 3, name: 'Silicone hand', s: [2, 2, 3, 2, 2, 1], total: 11, rank: 3 },
+  { n: 4, name: 'Activity-specific attachments', s: [1, 3, 3, 3, 3, 4], total: 17, rank: 1, pick: true },
+  { n: 5, name: 'Body-controlled full hand', s: [2, 2, 3, 3, 1, 1], total: 12, rank: 5 },
+];
+// Sizing chart: wrist circumference range (cm), forearm circumference (cm)
+const SIZES = [
+  { id: 'XS', wrist: [14, 16], fore: 18 }, { id: 'S', wrist: [16, 18], fore: 26 }, { id: 'M', wrist: [18, 21], fore: 30 },
+  { id: 'L', wrist: [21, 25], fore: 33 }, { id: 'XL', wrist: [25, 30], fore: 36 },
+].map(s => ({ ...s, fw: (s.wrist[0] + s.wrist[1]) / 2 / 19.5, ff: s.fore / 30 }));
+const VIEWS = {
+  'attachments': { cam: [380, -790, 380], target: [0, 0, 215], span: 420, min: 220, max: 2600, hint: 'Drag to spin. Click a part.' },
+  'the-lock': { cam: [115, -420, L + 125], target: [0, 0, L + 30], span: 190, min: 90, max: 1500, hint: 'Drag to orbit. Scroll or pinch to zoom.' },
+  'sizing': { cam: [300, -1000, 300], target: [0, 0, 185], span: 420, min: 220, max: 2600, hint: 'Drag to orbit. Scroll or pinch to zoom.' },
+};
+
+/* ------------------------------------------------------------------ renderer */
+const stage = $('stage'), canvas = $('gl');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, stencil: true });
+} catch (err) {
+  $('fallback').style.display = 'grid'; $('hint').hidden = true;
+  throw err;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.localClippingEnabled = true;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.92;
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.85;
+const camera = new THREE.PerspectiveCamera(30, 1, 5, 9000);
+const controls = new OrbitControls(camera, canvas); controls.enableZoom = false;
+controls.enableDamping = true; controls.dampingFactor = 0.09; controls.zoomSpeed = 0.8;
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.7);
+keyLight.castShadow = true; keyLight.shadow.mapSize.set(2048, 2048); keyLight.shadow.bias = -0.0004; keyLight.shadow.normalBias = 0.6;
+scene.add(keyLight, keyLight.target);
+const fill = new THREE.DirectionalLight(0xdfe6ff, 0.45); fill.position.set(-300, 220, 260); scene.add(fill);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.ShadowMaterial({ opacity: 0.3 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.5; ground.receiveShadow = true; scene.add(ground);
+
+// CAD is Z-up; three.js is Y-up.  model (x, y, z) -> world (x, z, -y)
+const toWorld = (p) => new THREE.Vector3(p[0], p[2], -p[1]);
+const root = new THREE.Group(); root.rotation.x = -Math.PI / 2; scene.add(root);
+
+/* ------------------------------------------------------------------ model */
+const MAT = { white: { color: 0xf0efea, roughness: 0.8 }, black: { color: 0x17171a, roughness: 0.55 }, key: { color: 0xd9541e, roughness: 0.5 } };
+function b64(s) { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+function geometry(name) {
+  const src = DATA.parts[name], g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(b64(src.pos)), 3));
+  g.setAttribute('normal', new THREE.BufferAttribute(new Int8Array(b64(src.nrm)), 3, true));
+  g.setIndex(new THREE.BufferAttribute(new Uint32Array(b64(src.idx)), 1));
+  return g;
+}
+// Section cut: world plane z = 0 (CAD y = 0), keeping the back half so the camera in front looks into the lock
+const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1e6);
+const G = {}, meshes = [], caps = [];
+function addPart(name, group, mat, parent, order) {
+  const grp = G[name] = new THREE.Group(); parent.add(grp);
+  const geo = geometry(name);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ ...MAT[mat], clippingPlanes: [clipPlane] }));
+  mesh.castShadow = true; mesh.receiveShadow = true; mesh.renderOrder = 100; mesh.userData = { group, name };
+  grp.add(mesh); meshes.push(mesh);
+  // stencil pair: counts back faces minus front faces along the view ray, so the cap only draws where the cut is inside the solid
+  const base = { depthWrite: false, depthTest: false, colorWrite: false, stencilWrite: true, stencilFunc: THREE.AlwaysStencilFunc, clippingPlanes: [clipPlane] };
+  const back = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ ...base, side: THREE.BackSide,
+    stencilFail: THREE.IncrementWrapStencilOp, stencilZFail: THREE.IncrementWrapStencilOp, stencilZPass: THREE.IncrementWrapStencilOp }));
+  const front = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ ...base, side: THREE.FrontSide,
+    stencilFail: THREE.DecrementWrapStencilOp, stencilZFail: THREE.DecrementWrapStencilOp, stencilZPass: THREE.DecrementWrapStencilOp }));
+  back.renderOrder = front.renderOrder = order; back.visible = front.visible = false;
+  grp.add(back, front);
+  const cap = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.MeshStandardMaterial({ ...MAT[mat],
+    stencilWrite: true, stencilRef: 0, stencilFunc: THREE.NotEqualStencilFunc,
+    stencilFail: THREE.ReplaceStencilOp, stencilZFail: THREE.ReplaceStencilOp, stencilZPass: THREE.ReplaceStencilOp }));
+  cap.material.color.multiplyScalar(mat === 'white' ? 0.82 : mat === 'black' ? 2.6 : 0.85);
+  cap.position.set(0, L, -0.01); cap.renderOrder = order + 0.1; cap.visible = false;
+  cap.onAfterRender = (r) => r.clearStencil();
+  scene.add(cap); caps.push(cap);
+  mesh.userData.stencil = [back, front]; mesh.userData.cap = cap;
+  return mesh;
+}
+const upper = addPart('upper', 'socket', 'white', root, 1);
+const lower = addPart('lower', 'socket', 'white', root, 2);
+const attach = new THREE.Group(); root.add(attach);
+const ringMesh = addPart('ring', 'ring', 'black', attach, 3);
+const clawMesh = addPart('claw', 'claw', 'black', attach, 4);
+const keyMesh = addPart('key', 'key', 'key', root, 5);
+for (const m of [upper, lower]) m.userData.base = m.geometry.attributes.position.array.slice();
+
+/* ------------------------------------------------------------------ view state */
+let current = null, selected = null, hovered = null, showLabels = true, sectionOn = true, explode = 0;
+let attachment = 'ring', lockA = 1, playing = false, size = SIZES[2];
+const fit = { fw: 1, ff: 1, tw: 1, tf: 1 };
+const tagLayer = $('tags'), leaderLayer = $('leaders');
+let tagEls = [];
+
+const TAGS = {
+  'attachments': [
+    { id: 'attach', name: () => attachment === 'ring' ? 'Ring attachment' : 'Claw attachment', at: () => attachment === 'ring' ? [44, 14, 92] : [0, -46, 92], object: attach, tag: [120, -34] },
+    { id: 'key', name: 'Locking key', at: [14, 0, 0], object: G.key, tag: [112, 26] },
+    { id: 'socket', name: 'Forearm socket', at: [-31, 0, 232], object: G.upper, tag: [-120, -12] },
+    { id: 'socket', name: 'Print seam', at: [-40, 0, 137], object: G.lower, tag: [-112, 22] },
+    { id: 'socket', name: 'Cross hole', at: [50, -15, 22], object: G.lower, tag: [112, 14] },
+  ],
+  'the-lock': [
+    { name: 'Lug, one of four', at: [-27, 0, L + 11], object: G.upper, tag: [-128, -46] },
+    { name: 'Collar', at: [-32, 0, 9], object: attach, tag: [-118, 44] },
+    { name: 'Key', at: [14, 0, 0], object: G.key, tag: [104, -34] },
+    { name: 'Entry slot', at: [19.3, -19.3, 2], object: attach, tag: [84, 64] },
+  ],
+  'sizing': [
+    { name: () => `Wrist end ${Math.round(NECK * fit.fw)} mm`, at: () => [-31 * fit.fw, 0, L - 30], object: G.upper, tag: [-128, -8] },
+    { name: () => `Open end ${Math.round(OPEN[0] * fit.ff)} × ${Math.round(OPEN[1] * fit.ff)} mm`, at: () => [56 * fit.ff, 0, 40], object: G.lower, tag: [130, 10] },
+    { name: 'Same twist-lock on every size', at: [32, 0, 12], object: attach, tag: [150, -30] },
+  ],
+};
+function setTags(list) {
+  tagLayer.innerHTML = ''; leaderLayer.innerHTML = '';
+  tagEls = list.map(t => {
+    const el = document.createElement('div'); el.className = 'tag'; tagLayer.appendChild(el);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line'), dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('r', 2.5); leaderLayer.append(line, dot);
+    return { ...t, el, line, dot, text: null };
+  });
+}
+const v3 = new THREE.Vector3();
+function placeTags() {
+  const w = stage.clientWidth, h = stage.clientHeight, narrow = w < 560;
+  for (const t of tagEls) {
+    const name = typeof t.name === 'function' ? t.name() : t.name, at = typeof t.at === 'function' ? t.at() : t.at;
+    if (name !== t.text) { t.el.textContent = t.text = name; }
+    v3.set(at[0], at[1], at[2]); t.object.localToWorld(v3); v3.project(camera);
+    const x = (v3.x * 0.5 + 0.5) * w, y = (-v3.y * 0.5 + 0.5) * h;
+    const mine = t.id === 'attach' ? attachment : t.id, faded = selected && mine && mine !== selected;
+    const show = showLabels && v3.z < 1 && !faded;
+    t.el.style.display = show ? '' : 'none'; t.line.style.display = t.dot.style.display = show ? '' : 'none';
+    if (!show) continue;
+    const k = narrow ? 0.55 : 1, tx = Math.min(Math.max(x + t.tag[0] * k, 6 + t.el.offsetWidth / 2), w - 6 - t.el.offsetWidth / 2), ty = Math.min(Math.max(y + t.tag[1] * k, 34), h - 70);
+    t.el.style.transform = `translate(${tx - t.el.offsetWidth / 2}px, ${ty - t.el.offsetHeight / 2}px)`;
+    t.line.setAttribute('x1', x); t.line.setAttribute('y1', y); t.line.setAttribute('x2', tx); t.line.setAttribute('y2', ty);
+    t.dot.setAttribute('cx', x); t.dot.setAttribute('cy', y);
+  }
+}
+
+// Where everything sits: the lock sequence (lockA 0..1) and the explode slider share the same three movers
+function applyPose() {
+  const a = current === 'the-lock' ? lockA : 1, e = current === 'attachments' ? explode : 0;
+  const lift = 70 * (1 - ss(a, 0.04, 0.4)), turn = 45 * (1 - ss(a, 0.4, 0.75)), keyOut = 40 * (1 - ss(a, 0.75, 1));
+  const up = 26 * e;
+  G.upper.position.z = up;
+  attach.position.z = L + lift + up + 52 * e; attach.rotation.z = turn * Math.PI / 180;
+  G.key.position.set(22 + keyOut + 46 * e, 0, L + 11 + up);
+  G.ring.visible = attachment === 'ring'; G.claw.visible = attachment === 'claw';
+  if (current === 'the-lock') {
+    const step = a < 0.04 ? 0 : a < 0.4 ? 1 : a < 0.75 ? 2 : 3;
+    [...$('steps').children].forEach((li, i) => li.classList.toggle('is-now', i === step));
+    $('r-turn').textContent = Math.round(turn);
+    $('r-state').textContent = a >= 0.995 ? 'Locked' : a >= 0.75 ? 'Held, key out' : a >= 0.4 ? 'Turning' : 'Free';
+  }
+}
+function applySection() {
+  const on = sectionOn && current === 'the-lock';
+  for (const m of meshes) {
+    const vis = on && m.parent.visible && !(selected && m.userData.group !== selected);
+    m.userData.stencil.forEach(s => { s.visible = vis; }); m.userData.cap.visible = vis;
+  }
+  clipPlane.constant = on ? 0 : 1e6;
+}
+function applySelection() {
+  for (const m of meshes) {
+    const g = m.userData.group, faded = selected && g !== selected;
+    if (m.material.transparent !== !!faded) { m.material.transparent = !!faded; m.material.needsUpdate = true; }
+    m.material.opacity = faded ? 0.1 : 1; m.material.depthWrite = !faded;
+    m.material.emissive.setHex(!faded && hovered === g ? 0x4a1f06 : 0x000000);
+  }
+  document.querySelectorAll('.part').forEach(li => {
+    const open = li.dataset.id === selected; li.classList.toggle('is-open', open); li.querySelector('button').setAttribute('aria-expanded', open);
+  });
+  applySection();
+}
+function setAttachment(id) {
+  attachment = id;
+  $('att-ring').setAttribute('aria-pressed', id === 'ring'); $('att-claw').setAttribute('aria-pressed', id === 'claw');
+  if (selected === 'ring' || selected === 'claw') selected = id;
+  applyPose(); applySelection();
+}
+function select(id) {
+  selected = id && id !== selected ? id : null;
+  if (selected === 'ring' || selected === 'claw') { attachment = selected; $('att-ring').setAttribute('aria-pressed', selected === 'ring'); $('att-claw').setAttribute('aria-pressed', selected === 'claw'); applyPose(); }
+  applySelection();
+}
+
+// Sizing: scale the socket radially about the wrist axis, wrist factor at the neck blending to forearm factor at the open end.  The boss and lugs (above Z = L) never move.
+function applyFit() {
+  for (const m of [upper, lower]) {
+    const base = m.userData.base, pos = m.geometry.attributes.position, arr = pos.array;
+    for (let i = 0; i < base.length; i += 3) {
+      const d = L - base[i + 2];
+      const w = fit.fw + (fit.ff - fit.fw) * ss(d, 56, L), s = d <= 0 ? 1 : 1 + (w - 1) * ss(d, 0, 12);
+      arr[i] = base[i] * s; arr[i + 1] = base[i + 1] * s;
+    }
+    pos.needsUpdate = true; m.geometry.computeBoundingSphere();
+  }
+}
+function setSize(s, instant) {
+  size = s; fit.tw = s.fw; fit.tf = s.ff;
+  if (instant || reduceMotion) { fit.fw = fit.tw; fit.ff = fit.tf; applyFit(); }
+  document.querySelectorAll('#sizes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.size === s.id));
+  document.querySelectorAll('#size-table tbody tr').forEach(tr => tr.classList.toggle('pick', tr.dataset.size === s.id));
+  $('s-wrist').textContent = `${s.wrist[0]}–${s.wrist[1]}`; $('s-fore').textContent = s.fore.toFixed(1);
+  $('s-neck').textContent = Math.round(NECK * s.fw); $('s-open').textContent = `${Math.round(OPEN[0] * s.ff)} × ${Math.round(OPEN[1] * s.ff)}`;
+}
+
+/* ------------------------------------------------------------------ panel */
+function renderParts() {
+  const ol = $('parts');
+  for (const p of PARTS) {
+    const li = document.createElement('li'); li.className = 'part'; li.dataset.id = p.id;
+    const photo = p.photo ? `<figure><img src="${DATA.photos[p.photo]}" alt="${p.caption}"><figcaption>${p.caption}</figcaption></figure>` : '';
+    li.innerHTML = `<button aria-expanded="false"><span class="name">${p.name}</span><span class="chip">${p.chip}</span></button>
+      <div class="body"><p>${p.text}</p><dl class="dims">${p.dims.map(d => `<dt>${d[0]}</dt><dd>${d[1]}</dd>`).join('')}</dl>${photo}</div>`;
+    li.querySelector('button').addEventListener('click', () => select(p.id));
+    ol.appendChild(li);
+  }
+}
+function renderScores() {
+  const bars = $('bars'), tip = $('tip'), ord = ['1st', '2nd', '3rd', '4th', '5th'];
+  for (const d of DESIGNS) {
+    const row = document.createElement('div'); row.className = 'bar-row' + (d.pick ? ' is-pick' : ''); row.tabIndex = 0;
+    row.innerHTML = `<span class="lab"><b>${d.n}</b> ${d.name}${d.pick ? ' <span class="chip on">Built</span>' : ''}</span><span class="val">${d.total} / 20</span>
+      <span class="track"><span class="fill" style="width:${d.total / 20 * 100}%"></span></span>`;
+    const showTip = () => {
+      tip.innerHTML = `<b>Design ${d.n}: ${d.total} of 20</b><br>` + SPECS.map((s, i) => `${s[0]} ${d.s[i]}/${s[1]}`).join(' · ') + `<br>Client ranked it ${ord[d.rank - 1]} of 5`;
+      tip.style.display = 'block'; tip.style.left = '0px'; tip.style.top = (row.offsetTop + row.offsetHeight + 4) + 'px';
+    };
+    row.addEventListener('pointerenter', showTip); row.addEventListener('focus', showTip);
+    row.addEventListener('pointerleave', () => { tip.style.display = 'none'; }); row.addEventListener('blur', () => { tip.style.display = 'none'; });
+    bars.appendChild(row);
+  }
+  $('score-table').innerHTML = `<thead><tr><th>Specification</th>${DESIGNS.map(d => `<th class="${d.pick ? 'pick' : ''}">${d.n}</th>`).join('')}</tr></thead><tbody>` +
+    SPECS.map((s, i) => `<tr><td>${s[0]} (of ${s[1]})</td>${DESIGNS.map(d => `<td class="${d.pick ? 'pick' : ''}">${d.s[i]}</td>`).join('')}</tr>`).join('') +
+    `<tr><td>Total (of 20)</td>${DESIGNS.map(d => `<td class="${d.pick ? 'pick' : ''}">${d.total}</td>`).join('')}</tr>` +
+    `<tr><td>Client ranking</td>${DESIGNS.map(d => `<td class="${d.pick ? 'pick' : ''}">${d.rank}</td>`).join('')}</tr></tbody>`;
+}
+function renderSizes() {
+  const seg = $('sizes');
+  for (const s of SIZES) {
+    const b = document.createElement('button'); b.textContent = s.id; b.dataset.size = s.id; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => setSize(s)); seg.appendChild(b);
+  }
+  $('size-table').innerHTML = `<thead><tr><th>Size</th><th>Wrist, cm</th><th>Forearm, cm</th><th>Socket ends, mm</th></tr></thead><tbody>` +
+    SIZES.map(s => `<tr data-size="${s.id}"><td>${s.id}</td><td>${s.wrist[0]}–${s.wrist[1]}</td><td>${s.fore.toFixed(1)}</td><td>${Math.round(NECK * s.fw)} / ${Math.round(OPEN[0] * s.ff)} × ${Math.round(OPEN[1] * s.ff)}</td></tr>`).join('') + `</tbody>`;
+}
+
+let tween = null;
+function flyTo(cam, target, instant) {
+  const p1 = toWorld(cam), t1 = toWorld(target), asp = stage.clientWidth / Math.max(1, stage.clientHeight);
+  if (asp < 1.15) p1.sub(t1).multiplyScalar(Math.min(2.2, 1.15 / asp)).add(t1);
+  if (instant || reduceMotion) { camera.position.copy(p1); controls.target.copy(t1); tween = null; return; }
+  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1, t1, t: 0 };
+}
+function setLights(span, center) {
+  const c = toWorld(center);
+  keyLight.position.set(c.x - span * 0.7, c.y + span * 1.5, c.z + span * 0.9); keyLight.target.position.copy(c);
+  const sc = keyLight.shadow.camera; sc.left = sc.bottom = -span; sc.right = sc.top = span; sc.near = 1; sc.far = span * 5; sc.updateProjectionMatrix();
+}
+function show(id, instant) {
+  if (!VIEWS[id]) id = 'attachments';
+  current = id; selected = null; hovered = null; playing = false; $('play').textContent = 'Play';
+  const v = VIEWS[id];
+  for (const k in VIEWS) { $('tools-' + k).hidden = k !== id; $('panel-' + k).hidden = k !== id; }
+  document.querySelectorAll('.views button').forEach(b => b.setAttribute('aria-selected', b.dataset.view === id));
+  $('hint').textContent = v.hint;
+  setTags(TAGS[id]); setLights(v.span, v.target);
+  controls.minDistance = v.min; controls.maxDistance = v.max;
+  flyTo(v.cam, v.target, instant);
+  if (id === 'the-lock') { lockA = 1; $('lock').value = 100; }
+  const s = id === 'sizing' ? size : SIZES[2]; fit.tw = s.fw; fit.tf = s.ff;
+  if (instant || reduceMotion) { fit.fw = fit.tw; fit.ff = fit.tf; applyFit(); }
+  applyPose(); applySelection();
+  $('panel').scrollTop = 0;
+}
+
+/* ------------------------------------------------------------------ controls */
+document.querySelectorAll('.views button').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.view; show(b.dataset.view); }));
+addEventListener('hashchange', () => { const id = location.hash.slice(1); if (id && id !== current) show(id); });
+$('explode').addEventListener('input', e => { explode = e.target.value / 100; applyPose(); });
+$('att-ring').addEventListener('click', () => setAttachment('ring')); $('att-claw').addEventListener('click', () => setAttachment('claw'));
+const toggle = (btn, fn) => btn.addEventListener('click', () => { const on = btn.getAttribute('aria-pressed') !== 'true'; btn.setAttribute('aria-pressed', on); fn(on); });
+toggle($('section'), on => { sectionOn = on; applySection(); });
+const setLabels = on => { showLabels = on; for (const id of ['labels', 'labels2', 'labels3']) $(id).setAttribute('aria-pressed', on); };
+for (const id of ['labels', 'labels2', 'labels3']) toggle($(id), setLabels);
+const reset = () => { const v = VIEWS[current]; flyTo(v.cam, v.target); };
+for (const id of ['reset', 'reset2', 'reset3']) $(id).addEventListener('click', reset);
+$('lock').addEventListener('input', e => { playing = false; $('play').textContent = 'Play'; lockA = e.target.value / 100; applyPose(); });
+$('play').addEventListener('click', () => {
+  if (reduceMotion) { lockA = lockA >= 0.995 ? 0 : 1; $('lock').value = lockA * 100; applyPose(); return; }
+  if (playing) { playing = false; $('play').textContent = 'Play'; return; }
+  if (lockA >= 0.995) lockA = 0;
+  playing = true; $('play').textContent = 'Pause';
+});
+
+// picking (Attachments view only)
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(); let down = null;
+function pick(ev) {
+  if (current !== 'attachments') return null;
+  const r = canvas.getBoundingClientRect(); ptr.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  for (const hit of ray.intersectObjects(meshes.filter(m => m.parent.visible), false)) {
+    if (selected && hit.object.userData.group !== selected) continue;
+    return hit.object.userData.group;
+  }
+  return null;
+}
+canvas.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointermove', e => { if (e.pointerType === 'touch' || e.buttons) return; const g = pick(e); if (g !== hovered) { hovered = g; canvas.style.cursor = g ? 'pointer' : ''; applySelection(); } });
+canvas.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5 || current !== 'attachments') return;
+  const g = pick(e); select(g && g !== selected ? g : selected);
+  if (selected) document.querySelector(`.part[data-id="${selected}"]`)?.scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+});
+
+// Save image: the current view on the stage backdrop, as a PNG
+function snapshot() {
+  renderer.render(scene, camera);
+  const o = document.createElement('canvas'); o.width = canvas.width; o.height = canvas.height;
+  const x = o.getContext('2d'), cs = getComputedStyle(document.documentElement);
+  const g = x.createRadialGradient(o.width / 2, o.height * 0.3, 0, o.width / 2, o.height * 0.3, Math.max(o.width, o.height) * 0.75);
+  g.addColorStop(0, cs.getPropertyValue('--stage-a').trim()); g.addColorStop(1, cs.getPropertyValue('--stage-b').trim());
+  x.fillStyle = g; x.fillRect(0, 0, o.width, o.height); x.drawImage(canvas, 0, 0);
+  return new Promise((ok, no) => o.toBlob(b => b ? ok(b) : no(new Error('no image')), 'image/png'));
+}
+let saver = null;
+if (window.claude && window.claude.use) {
+  window.claude.use('downloads').then(d => { if (d) { saver = (name, blob) => d.save({ filename: name, data: blob }); $('shot').hidden = false; } });
+} else {
+  saver = async (name, blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+  $('shot').hidden = false;
+}
+$('shot').addEventListener('click', async () => {
+  const b = $('shot');
+  try { await saver(`prosthetic-arm-${attachment}.png`, await snapshot()); b.textContent = 'Saved'; }
+  catch (err) { b.textContent = err && err.code === 'declined' ? 'Cancelled' : 'Could not save'; }
+  setTimeout(() => { b.textContent = 'Save image'; }, 1800);
+});
+
+/* ------------------------------------------------------------------ loop */
+renderParts(); renderScores(); renderSizes(); setSize(SIZES[2], true);
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage); resize();
+show(location.hash.slice(1) || 'attachments', true);
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (tween) { tween.t = Math.min(1, tween.t + dt / 0.7); const k = 1 - Math.pow(1 - tween.t, 3);
+    camera.position.lerpVectors(tween.p0, tween.p1, k); controls.target.lerpVectors(tween.t0, tween.t1, k); if (tween.t >= 1) tween = null; }
+  if (playing) { lockA = Math.min(1, lockA + dt / 4.5); $('lock').value = lockA * 100; if (lockA >= 1) { playing = false; $('play').textContent = 'Play'; } applyPose(); }
+  if (fit.fw !== fit.tw || fit.ff !== fit.tf) {
+    const k = 1 - Math.exp(-dt * 9);
+    fit.fw += (fit.tw - fit.fw) * k; fit.ff += (fit.tf - fit.ff) * k;
+    if (Math.abs(fit.tw - fit.fw) < 0.002 && Math.abs(fit.tf - fit.ff) < 0.002) { fit.fw = fit.tw; fit.ff = fit.tf; }
+    applyFit();
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  placeTags();
+});
+window.__demo = { show, setSize, SIZES, setAttachment, select, snapshot, set: (o) => { if ('lock' in o) lockA = o.lock; if ('explode' in o) explode = o.explode; if ('section' in o) sectionOn = o.section; applyPose(); applySection(); },
+  frame: (cam, target) => { tween = null; camera.position.copy(toWorld(cam)); controls.target.copy(toWorld(target)); controls.update(); } };
+window.__ready = true;
+</script>
+</body>
+</html>

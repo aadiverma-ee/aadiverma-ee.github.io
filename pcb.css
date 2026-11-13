@@ -2,9 +2,9 @@
    The page is one board. The name is a chip, each project hangs off its own coloured wire,
    and on a project page that wire runs down from the 3D display through every section. */
 
-@font-face { font-family: "Urbanist"; font-weight: 100 900; font-display: swap; src: url("fonts/urbanist-latin-wght-normal.woff2") format("woff2"); }
-@font-face { font-family: "DM Mono"; font-weight: 400; font-display: swap; src: url("fonts/dm-mono-latin-400-normal.woff2") format("woff2"); }
-@font-face { font-family: "DM Mono"; font-weight: 500; font-display: swap; src: url("fonts/dm-mono-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Urbanist"; font-weight: 100 900; font-display: swap; src: url("urbanist-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "DM Mono"; font-weight: 400; font-display: swap; src: url("dm-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "DM Mono"; font-weight: 500; font-display: swap; src: url("dm-mono-latin-500-normal.woff2") format("woff2"); }
 
 :root {
   --bench: #15171a;          /* the desk under the board */
