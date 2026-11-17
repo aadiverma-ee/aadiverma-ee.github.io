@@ -415,3 +415,29 @@ b.tol { --b: #c39a3b; position: absolute; right: 24px; top: 0; bottom: 0; }
   .pill { padding: 0 12px 0 21px; }
   .pill b.tol { display: none; }
 }
+
+/* ---- 17 Nov fixes ---- */
+/* the name chip in the page header is a 16-pin package: 8 legs along the top, 8 along the bottom, centred */
+.home::after { left: 50%; right: auto; top: -6px; bottom: -6px; width: 89px; height: auto; transform: translateX(-50%); pointer-events: none;
+  background: repeating-linear-gradient(to right, var(--leg) 0 5px, transparent 5px 12px) 0 0 / 89px 6px no-repeat,
+              repeating-linear-gradient(to right, var(--leg) 0 5px, transparent 5px 12px) 0 100% / 89px 6px no-repeat; }
+
+/* cover resistors: no silkscreen box, and only as long as the longest project name needs */
+.res, .rmod:hover .res, .rmod.on .res { box-shadow: none; }
+.res > .ref { right: 34px; top: -12px; }
+.picker { position: relative; z-index: 2; min-width: 0; }
+.pick { display: flex; align-items: center; gap: 10px; margin: 0 0 26px 36px; font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: #ffd86b; }
+.pick span { display: inline-block; font-size: 16px; animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(4px); } }
+.rmod { cursor: pointer; }
+.rmod:hover .res__body, .rmod:focus-visible .res__body, .rmod.on .res__body { box-shadow: 0 10px 16px -10px #000, inset 0 0 0 1px var(--beige-edge), 0 0 0 2px var(--w); }
+@media (min-width: 861px) {
+  .picker { justify-self: start; max-width: 100%; }
+  .mods { width: max-content; max-width: 100%; }
+  .res__body { padding-right: 60px; }
+}
+@media (max-width: 860px) { .pick { margin: 0 0 20px 90px; font-size: 12px; } }
+@media (prefers-reduced-motion: reduce) { .pick span { animation: none; } }
+
+.fig--169 { aspect-ratio: 16 / 9; }
+.fig--169:not(.fig--light) img { object-position: 42% 50%; }
