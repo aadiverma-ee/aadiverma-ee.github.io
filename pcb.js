@@ -93,3 +93,20 @@
   }, { rootMargin: '-25% 0px -60% 0px' });
   Object.keys(byId).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
 })();
+
+// Looping clips: play only while on screen; with reduced motion, show controls instead of autoplay.
+(function () {
+  var vids = [].slice.call(document.querySelectorAll('.fig video'));
+  if (!vids.length) return;
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  vids.forEach(function (v) {
+    v.muted = true;
+    if (still || !('IntersectionObserver' in window)) { v.controls = true; return; }
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () { v.controls = true; }); }
+        else v.pause();
+      });
+    }, { rootMargin: '200px 0px' }).observe(v);
+  });
+})();
